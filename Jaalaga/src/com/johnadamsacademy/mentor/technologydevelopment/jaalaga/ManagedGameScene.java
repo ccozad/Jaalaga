@@ -35,9 +35,14 @@ import android.opengl.GLES20;
 
 public abstract class ManagedGameScene extends ManagedScene {
 	private Sprite shipSprite;
+	private Sprite enemy1Sprite;
+	private Sprite enemy2Sprite;
+	private Sprite enemy3Sprite;
 	private PhysicsHandler physicsHandler;
 	AnalogOnScreenControl analogOnScreenControl;
 	private int speed;
+	private float shipLeftBound;
+	private float shipRightBound;
 	
 	public ManagedGameScene(JaalagaResourceManager resourceManager, JaalagaSceneManager sceneManager) {
 		// Let the Scene Manager know that we want to show a Loading Scene for at least 2 seconds.
@@ -92,6 +97,13 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.getResourceManager().loadGameResources();
 		this.setBackground(new Background(0.0f, 0.0f, 0.0f));
 		
+		// Create our game elements
+		this.createShip();
+		this.createEnemies();
+		this.createControls();
+	}
+	
+	private void createShip() {
 		this.shipSprite = new Sprite(
 				0,
 				0,
@@ -104,6 +116,14 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.shipSprite.registerUpdateHandler(physicsHandler);
 		this.attachChild(this.shipSprite);
 		
+		// Sprites are anchored to the screen by their left edge. Our ship
+		// fires from the middle of the sprite so the middle must be able to
+		// reach all visible x coordinates.
+		this.shipLeftBound = 0 - ((this.shipSprite.getWidth()/2) - 1);
+		this.shipRightBound = this.getResourceManager().getCameraWidth() - ((this.shipSprite.getWidth()/2) + 1);
+	}
+	
+	private void createControls() {
 		this.analogOnScreenControl = new AnalogOnScreenControl(
 				0, 
 				this.getResourceManager().getCameraHeight() - this.getResourceManager().getOnScreenControlBase().getHeight(), 
@@ -119,8 +139,11 @@ public abstract class ManagedGameScene extends ManagedScene {
 							final BaseOnScreenControl pBaseOnScreenControl, 
 							final float pValueX, 
 							final float pValueY) {
-						//TODO How can we limit to left and right movement?
-						physicsHandler.setVelocity(pValueX * speed, pValueY * speed);
+						// Our ship only moves left to right so zero out the y element.
+						physicsHandler.setVelocity(pValueX * speed, 0);
+						// Keep ship from going off camera
+						// FIXME Screen binding is a little jerky.
+						bindShipToCamera();
 					}
 		
 					@Override
@@ -137,6 +160,49 @@ public abstract class ManagedGameScene extends ManagedScene {
 		int touchAreaCount = analogOnScreenControl.getTouchAreas().size();
 		for(int i = 0; i < touchAreaCount; i++) {
 			this.registerTouchArea(analogOnScreenControl.getTouchAreas().get(i));
+		}
+	}
+	
+	private void createEnemies() {
+		this.enemy1Sprite = new Sprite(
+				0,
+				0,
+				this.getResourceManager().getEnemy1(),
+				this.getResourceManager().getEngine().getVertexBufferObjectManager());
+		this.enemy1Sprite.setPosition(
+				this.getResourceManager().getCameraWidth() * 0.25f - this.enemy1Sprite.getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy1Sprite.getWidth()/2.0f);
+		this.attachChild(this.enemy1Sprite);
+		
+		this.enemy2Sprite = new Sprite(
+				0,
+				0,
+				this.getResourceManager().getEnemy2(),
+				this.getResourceManager().getEngine().getVertexBufferObjectManager());
+		this.enemy2Sprite.setPosition(
+				this.getResourceManager().getCameraWidth() * 0.50f - this.enemy2Sprite.getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy2Sprite.getWidth()/2.0f);
+		this.attachChild(this.enemy2Sprite);
+		
+		this.enemy3Sprite = new Sprite(
+				0,
+				0,
+				this.getResourceManager().getEnemy3(),
+				this.getResourceManager().getEngine().getVertexBufferObjectManager());
+		this.enemy3Sprite.setPosition(
+				this.getResourceManager().getCameraWidth() * 0.75f - this.enemy3Sprite.getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy3Sprite.getWidth()/2.0f);
+		this.attachChild(this.enemy3Sprite);
+	}
+	
+	private void bindShipToCamera() {
+		// Jaalaga does not allow the ship to move off screen. We only have 
+		// to ensure the ship is on screen for the x Axis because no y Axis
+		// movement occurs.
+		if(this.shipSprite.getX() < this.shipLeftBound) {
+			this.shipSprite.setPosition(this.shipLeftBound, this.shipSprite.getY());
+		} else if(this.shipSprite.getX() > this.shipRightBound) {
+			this.shipSprite.setPosition(this.shipRightBound, this.shipSprite.getY());
 		}
 	}
 	
