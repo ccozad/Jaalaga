@@ -60,6 +60,7 @@ public class JaalagaResourceManager extends Object {
 	
 	// Shared Resources
 	private ITiledTextureRegion buttonTiledTextureRegion;
+	private ITiledTextureRegion arcadeButtonTextureRegion;
 	private ITextureRegion logoTextureRegion;
 	private ITextureRegion shipTextureRegion;
 	private ITextureRegion enemy1TextureRegion;
@@ -90,6 +91,10 @@ public class JaalagaResourceManager extends Object {
 	}
 	
 	// ====== Getter & Setter Methods ======
+	
+	public ITiledTextureRegion getArcadeButton() {
+		return this.arcadeButtonTextureRegion;
+	}
 	
 	public ITiledTextureRegion getButton() {
 		return this.buttonTiledTextureRegion;
@@ -254,34 +259,28 @@ public class JaalagaResourceManager extends Object {
 			}
 		}
 		
-		BuildableBitmapTextureAtlas texture = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 280, 150);
-		this.onScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "onscreen_control_base.png");
-		this.onScreenControlKnobTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "onscreen_control_knob.png");
+		BuildableBitmapTextureAtlas controlTextureAtlas = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 280, 150);
+		this.onScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(controlTextureAtlas, context, "onscreen_control_base.png");
+		this.onScreenControlKnobTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(controlTextureAtlas, context, "onscreen_control_knob.png");
 		try {
-			texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
-			texture.load();
+			controlTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
+			controlTextureAtlas.load();
 		} catch (TextureAtlasBuilderException e) {
 			//Debug.e(e);
 			Log.v("Game Textures Load","Exception:" + e.getMessage());
 		}
+		controlTextureAtlas.load();
 		
-		/*BitmapTextureAtlas texture = new BitmapTextureAtlas(engine.getTextureManager(), 256, 128, TextureOptions.BILINEAR);
-		if(this.onScreenControlBaseTextureRegion != null) {
-			this.onScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "onscreen_control_base.png", 0, 0);
+		if(this.arcadeButtonTextureRegion == null) {
+			BuildableBitmapTextureAtlas texture = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 264, 136);
+			this.arcadeButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(texture, context, "arcadeButtonRed.png", 2, 1);
+			try {
+				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 0));
+				texture.load();
+			} catch (TextureAtlasBuilderException e) {
+				Log.v("Shared Textures Load","Exception:" + e.getMessage());
+			}
 		}
-		
-		if(this.onScreenControlKnobTextureRegion != null) {
-			this.onScreenControlKnobTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "onscreen_control_knob.png", 128, 0);
-		}*/
-		
-		texture.load();
-		//try {
-			
-		//} catch (TextureAtlasBuilderException e) {
-			//Debug.e(e);
-		//	Log.v("Game Textures Load","Exception:" + e.getMessage());
-		//}
-		//}
 
 		// Revert the Asset Path.
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath(mPreviousAssetBasePath);
@@ -315,6 +314,13 @@ public class JaalagaResourceManager extends Object {
 			if(this.enemy3TextureRegion.getTexture().isLoadedToHardware()) {
 				this.enemy3TextureRegion.getTexture().unload();
 				this.enemy3TextureRegion = null;
+			}
+		}
+		
+		if(this.arcadeButtonTextureRegion !=null) {
+			if(this.arcadeButtonTextureRegion.getTexture().isLoadedToHardware()) {
+				this.arcadeButtonTextureRegion.getTexture().unload();
+				this.arcadeButtonTextureRegion = null;
 			}
 		}
 	}
@@ -381,7 +387,7 @@ public class JaalagaResourceManager extends Object {
 				buttonTiledTextureRegion = null;
 			}
 		}
-		// cloud texture:
+		// logo texture:
 		if(this.logoTextureRegion!=null) {
 			if(this.logoTextureRegion.getTexture().isLoadedToHardware()) {
 				this.logoTextureRegion.getTexture().unload();

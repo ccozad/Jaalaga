@@ -6,7 +6,9 @@ import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnS
 import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.sprite.ButtonSprite.OnClickListener;
 import org.andengine.entity.text.Text;
 
 import android.opengl.GLES20;
@@ -34,6 +36,7 @@ import android.opengl.GLES20;
 //THE SOFTWARE.
 
 public abstract class ManagedGameScene extends ManagedScene {
+	private ButtonSprite fireButton;
 	private Sprite shipSprite;
 	private Sprite enemy1Sprite;
 	private Sprite enemy2Sprite;
@@ -161,6 +164,21 @@ public abstract class ManagedGameScene extends ManagedScene {
 		for(int i = 0; i < touchAreaCount; i++) {
 			this.registerTouchArea(analogOnScreenControl.getTouchAreas().get(i));
 		}
+		
+		this.fireButton = new ButtonSprite(
+				0,
+				0, 
+				this.getResourceManager().getArcadeButton().getTextureRegion(0), 
+				this.getResourceManager().getArcadeButton().getTextureRegion(1), 
+				this.getResourceManager().getEngine().getVertexBufferObjectManager());
+		this.fireButton.setPosition(this.getResourceManager().getCameraWidth() - this.fireButton.getWidth(), this.getResourceManager().getCameraHeight() - this.fireButton.getHeight());
+		this.attachChild(this.fireButton);
+		this.fireButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(ButtonSprite pButtonSprite, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				
+			}});
+		this.registerTouchArea(this.fireButton);
 	}
 	
 	private void createEnemies() {
