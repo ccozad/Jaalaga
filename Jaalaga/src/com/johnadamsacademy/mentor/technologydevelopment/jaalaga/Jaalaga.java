@@ -33,7 +33,7 @@ import android.view.KeyEvent;
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-public class ApplyingSceneManager extends BaseGameActivity {
+public class Jaalaga extends BaseGameActivity {
 
 	static float DESIGN_SCREEN_WIDTH_PIXELS = 480f;
 	static float DESIGN_SCREEN_HEIGHT_PIXELS = 800f;
