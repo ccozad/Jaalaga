@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -20,6 +21,7 @@ import org.andengine.util.color.Color;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
+import android.widget.Toast;
 
 // This software is licensed under The MIT License (MIT)
 //
@@ -55,8 +57,7 @@ public class JaalagaResourceManager extends Object {
 	private Context context;
 	private float cameraWidth;
 	private float cameraHeight;
-	private float cameraScaleFactorX;
-	private float cameraScaleFactorY;
+	private int maxPlayerRocketCount;
 	
 	// Shared Resources
 	private ITiledTextureRegion buttonTiledTextureRegion;
@@ -68,9 +69,11 @@ public class JaalagaResourceManager extends Object {
 	private ITextureRegion enemy3TextureRegion;
 	private ITextureRegion onScreenControlBaseTextureRegion;
 	private ITextureRegion onScreenControlKnobTextureRegion;
+	private ITextureRegion playerRocketTextureRegion;
 	private Sound clickSound;
 	private Font fontDefault32Bold;
 	private Font fontDefault72Bold;
+	private RocketPool playerRocketPool;
 	
 	// This variable will be used to revert the TextureFactory's default path when we change it.
 	private String mPreviousAssetBasePath = "";
@@ -79,15 +82,13 @@ public class JaalagaResourceManager extends Object {
 	public JaalagaResourceManager(final Engine pEngine, 
 			final Context pContext, 
 			final float pCameraWidth, 
-			final float pCameraHeight, 
-			final float pCameraScaleX, 
-			final float pCameraScaleY){
+			final float pCameraHeight,
+			int playerRocketCount){
 		engine = pEngine;
 		context = pContext;
 		cameraWidth = pCameraWidth;
 		cameraHeight = pCameraHeight;
-		cameraScaleFactorX = pCameraScaleX;
-		cameraScaleFactorY = pCameraScaleY;
+		this.maxPlayerRocketCount = playerRocketCount;
 	}
 	
 	// ====== Getter & Setter Methods ======
@@ -118,14 +119,6 @@ public class JaalagaResourceManager extends Object {
 	
 	public float getCameraHeight() {
 		return this.cameraHeight;
-	}
-	
-	public float getCameraScaleFactorX() {
-		return this.cameraScaleFactorX;
-	}
-	
-	public float getCameraScaleFactorY() {
-		return this.cameraScaleFactorY;
 	}
 	
 	public Engine getEngine() {
@@ -164,6 +157,22 @@ public class JaalagaResourceManager extends Object {
 		return this.onScreenControlKnobTextureRegion;
 	}
 	
+	public Sprite getPlayerRocket() {
+		return this.playerRocketPool.obtainPoolItem();
+	}
+	
+	public int getMaxPlayerRockets() {
+		return this.maxPlayerRocketCount;
+	}
+	
+	public int getAvailablePlayerRockets() {
+		return this.playerRocketPool.getAvailableItemCount();
+	}
+	
+	public void recyclePlayerRocket(Sprite playerRocket) {
+		this.playerRocketPool.recyclePoolItem(playerRocket);
+	}
+	
 	// ====== Private Behavior Methods ======
 	
 	// Loads all game resources.
@@ -181,6 +190,7 @@ public class JaalagaResourceManager extends Object {
 	// Unloads all game resources.
 	public void unloadGameResources() {
 		this.unloadGameTextures();
+		this.unloadRocketPools();
 	}
 
 	// Unloads all menu resources
@@ -217,9 +227,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga","Ship texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				//Debug.e(e);
-				Log.v("Game Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Ship texture load exception:" + e.getMessage());
 			}
 		}
 		
@@ -229,9 +239,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga","Enemy 1 texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				//Debug.e(e);
-				Log.v("Game Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Enemy 1 texture load exception:" + e.getMessage());
 			}
 		}
 		
@@ -241,9 +251,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga","Enemy 2 texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				//Debug.e(e);
-				Log.v("Game Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Enemy 2 texture load exception:" + e.getMessage());
 			}
 		}
 		
@@ -253,9 +263,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga", "Enemy 3 texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				//Debug.e(e);
-				Log.v("Game Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Enemy 3 texture load exception:" + e.getMessage());
 			}
 		}
 		
@@ -265,9 +275,9 @@ public class JaalagaResourceManager extends Object {
 		try {
 			controlTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 			controlTextureAtlas.load();
+			Log.v("Jaalaga","Analog Control texture loaded");
 		} catch (TextureAtlasBuilderException e) {
-			//Debug.e(e);
-			Log.v("Game Textures Load","Exception:" + e.getMessage());
+			Log.e("Jaalaga"," Analog Control texture load exception:" + e.getMessage());
 		}
 		controlTextureAtlas.load();
 		
@@ -277,8 +287,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 0));
 				texture.load();
+				Log.v("Jaalaga","Arcade Button texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				Log.v("Shared Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Arcade Button texture load exception:" + e.getMessage());
 			}
 		}
 
@@ -293,6 +304,7 @@ public class JaalagaResourceManager extends Object {
 			if(this.shipTextureRegion.getTexture().isLoadedToHardware()) {
 				this.shipTextureRegion.getTexture().unload();
 				this.shipTextureRegion = null;
+				Log.v("Jaalaga","Ship texture unloaded");
 			}
 		}
 		
@@ -300,6 +312,7 @@ public class JaalagaResourceManager extends Object {
 			if(this.enemy1TextureRegion.getTexture().isLoadedToHardware()) {
 				this.enemy1TextureRegion.getTexture().unload();
 				this.enemy1TextureRegion = null;
+				Log.v("Jaalaga","Enemy 1 texture unloaded");
 			}
 		}
 		
@@ -307,6 +320,7 @@ public class JaalagaResourceManager extends Object {
 			if(this.enemy2TextureRegion.getTexture().isLoadedToHardware()) {
 				this.enemy2TextureRegion.getTexture().unload();
 				this.enemy2TextureRegion = null;
+				Log.v("Jaalaga","Enemy 2 texture unloaded");
 			}
 		}
 		
@@ -314,6 +328,7 @@ public class JaalagaResourceManager extends Object {
 			if(this.enemy3TextureRegion.getTexture().isLoadedToHardware()) {
 				this.enemy3TextureRegion.getTexture().unload();
 				this.enemy3TextureRegion = null;
+				Log.v("Jaalaga","Enemy 3 texture unloaded");
 			}
 		}
 		
@@ -321,6 +336,7 @@ public class JaalagaResourceManager extends Object {
 			if(this.arcadeButtonTextureRegion.getTexture().isLoadedToHardware()) {
 				this.arcadeButtonTextureRegion.getTexture().unload();
 				this.arcadeButtonTextureRegion = null;
+				Log.v("Jaalaga","Arcade Button texture unloaded");
 			}
 		}
 	}
@@ -338,8 +354,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga","Logo texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				Log.v("Menu Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Logo texture load exception:" + e.getMessage());
 			}
 		}
 		
@@ -348,11 +365,12 @@ public class JaalagaResourceManager extends Object {
 	}
 
 	private void unloadMenuTextures(){
-		// background texture:
-		if(this.logoTextureRegion != null) {
+		// logo texture:
+		if(this.logoTextureRegion!=null) {
 			if(this.logoTextureRegion.getTexture().isLoadedToHardware()) {
 				this.logoTextureRegion.getTexture().unload();
 				this.logoTextureRegion = null;
+				Log.v("Jaalaga","Logo texture unloaded");
 			}
 		}
 	}
@@ -370,8 +388,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
 				texture.load();
+				Log.v("Jaalaga","Button texture loaded");
 			} catch (TextureAtlasBuilderException e) {
-				Log.v("Shared Textures Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Button texture loaded exception:" + e.getMessage());
 			}
 		}
 
@@ -385,13 +404,7 @@ public class JaalagaResourceManager extends Object {
 			if(buttonTiledTextureRegion.getTexture().isLoadedToHardware()) {
 				buttonTiledTextureRegion.getTexture().unload();
 				buttonTiledTextureRegion = null;
-			}
-		}
-		// logo texture:
-		if(this.logoTextureRegion!=null) {
-			if(this.logoTextureRegion.getTexture().isLoadedToHardware()) {
-				this.logoTextureRegion.getTexture().unload();
-				this.logoTextureRegion = null;
+				Log.v("Jaalaga","Button texture unloaded");
 			}
 		}
 	}
@@ -402,8 +415,9 @@ public class JaalagaResourceManager extends Object {
 			try {
 				// Create the clickSound object via the SoundFactory class
 				clickSound	= SoundFactory.createSoundFromAsset(engine.getSoundManager(), context, "click.mp3");
+				Log.v("Jaalaga", "Click sound loaded");
 			} catch (final IOException e) {
-				Log.v("Sounds Load","Exception:" + e.getMessage());
+				Log.e("Jaalaga","Click sound load Exception:" + e.getMessage());
 			}
 		}
 	}
@@ -415,6 +429,7 @@ public class JaalagaResourceManager extends Object {
 				clickSound.stop();
 				engine.getSoundManager().remove(clickSound);
 				clickSound = null;
+				Log.v("Jaalaga", "Click sound unloaded");
 			}
 	}
 
@@ -423,10 +438,12 @@ public class JaalagaResourceManager extends Object {
 		if(fontDefault32Bold==null) {
 			fontDefault32Bold = FontFactory.create(engine.getFontManager(), engine.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  32f, true, Color.WHITE_ARGB_PACKED_INT);
 			fontDefault32Bold.load();
+			Log.v("Jaalaga", "Default 32 Bold font loaded");
 		}
 		if(fontDefault72Bold==null) {
 			fontDefault72Bold = FontFactory.create(engine.getFontManager(), engine.getTextureManager(), 512, 512, Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  72f, true, Color.WHITE_ARGB_PACKED_INT);
 			fontDefault72Bold.load();
+			Log.v("Jaalaga", "Default 72 Bold font loaded");
 		}
 	}
 	
@@ -435,10 +452,50 @@ public class JaalagaResourceManager extends Object {
 		if(fontDefault32Bold!=null) {
 			fontDefault32Bold.unload();
 			fontDefault32Bold = null;
+			Log.v("Jaalaga", "Default 32 Bold font loaded");
 		}
 		if(fontDefault72Bold!=null) {
 			fontDefault72Bold.unload();
 			fontDefault72Bold = null;
+			Log.v("Jaalaga", "Default 72 Bold font loaded");
 		}
+	}
+	
+	public void loadRocketPools() {
+		// Store the current asset base path to apply it after we've loaded our textures
+		mPreviousAssetBasePath = BitmapTextureAtlasTextureRegionFactory.getAssetBasePath();
+		// Set our game assets folder to "assets/gfx/game/"
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
+		
+		
+		if(this.playerRocketTextureRegion == null) {
+			BuildableBitmapTextureAtlas texture = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 25, 25);
+			this.playerRocketTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "playerRocket.png");
+			try {
+				texture.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 4));
+				texture.load();
+				Log.v("Jaalaga","Player Rocket texture loaded");
+				if(this.playerRocketPool == null) {
+					this.playerRocketPool = new RocketPool(
+							this.maxPlayerRocketCount, 
+							this.playerRocketTextureRegion, 
+							this.engine.getVertexBufferObjectManager());
+					Log.v("Jaalaga","Player Rocket Pool loaded");
+				}
+			} catch (TextureAtlasBuilderException e) {
+				Log.e("Jaalaga","Player Rocket texture load exception:" + e.getMessage());
+			}
+		}
+		
+		// Revert the Asset Path.
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath(mPreviousAssetBasePath);
+	}
+	
+	private void unloadRocketPools() {
+		this.playerRocketTextureRegion.getTexture().unload();
+		this.playerRocketTextureRegion = null;
+		Log.v("Jaalaga","Player Rocket texture unloaded");
+		this.playerRocketPool = null;
+		Log.v("Jaalaga","Player Rocket Pool unloaded");
 	}
 }

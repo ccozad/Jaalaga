@@ -1,9 +1,12 @@
 package com.johnadamsacademy.mentor.technologydevelopment.jaalaga;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
 import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
-import org.andengine.engine.handler.physics.PhysicsHandler;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.ButtonSprite;
@@ -12,6 +15,7 @@ import org.andengine.entity.sprite.ButtonSprite.OnClickListener;
 import org.andengine.entity.text.Text;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 //This software is licensed under The MIT License (MIT)
 //
@@ -41,11 +45,14 @@ public abstract class ManagedGameScene extends ManagedScene {
 	private Sprite enemy1Sprite;
 	private Sprite enemy2Sprite;
 	private Sprite enemy3Sprite;
-	private PhysicsHandler physicsHandler;
+	private Sprite tempRocket;
 	AnalogOnScreenControl analogOnScreenControl;
+	private float xValue;
 	private int speed;
+	private int playerRocketSpeed;
 	private float shipLeftBound;
 	private float shipRightBound;
+	private List<Sprite> playerRockets;
 	
 	public ManagedGameScene(JaalagaResourceManager resourceManager, JaalagaSceneManager sceneManager) {
 		// Let the Scene Manager know that we want to show a Loading Scene for at least 2 seconds.
@@ -62,7 +69,10 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);
 		//TODO What speed gives good game play?
-		speed = 200;
+		this.speed = 200;
+		this.playerRocketSpeed = 200;
+		this.xValue = 0;
+		this.playerRockets = new ArrayList<Sprite>();
 	}
 	
 	// These objects will make up our loading scene.
@@ -100,10 +110,13 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.getResourceManager().loadGameResources();
 		this.setBackground(new Background(0.0f, 0.0f, 0.0f));
 		
+		this.getResourceManager().loadRocketPools();
+		
 		// Create our game elements
 		this.createShip();
 		this.createEnemies();
 		this.createControls();
+		this.createGameLoop();
 	}
 	
 	private void createShip() {
@@ -115,8 +128,6 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.shipSprite.setPosition(
 				this.getResourceManager().getCameraWidth()/2 - this.shipSprite.getWidth()/2.0f, 
 				this.getResourceManager().getCameraHeight() - 184);
-		this.physicsHandler = new PhysicsHandler(this.shipSprite);
-		this.shipSprite.registerUpdateHandler(physicsHandler);
 		this.attachChild(this.shipSprite);
 		
 		// Sprites are anchored to the screen by their left edge. Our ship
@@ -142,11 +153,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 							final BaseOnScreenControl pBaseOnScreenControl, 
 							final float pValueX, 
 							final float pValueY) {
-						// Our ship only moves left to right so zero out the y element.
-						physicsHandler.setVelocity(pValueX * speed, 0);
-						// Keep ship from going off camera
-						// FIXME Screen binding is a little jerky.
-						bindShipToCamera();
+						xValue = pValueX;
 					}
 		
 					@Override
@@ -176,7 +183,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.fireButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(ButtonSprite pButtonSprite, float pTouchAreaLocalX, float pTouchAreaLocalY) {
-				
+				firePlayerRocket(shipSprite.getX() + shipSprite.getWidth()/2, shipSprite.getY());
 			}});
 		this.registerTouchArea(this.fireButton);
 	}
@@ -221,6 +228,50 @@ public abstract class ManagedGameScene extends ManagedScene {
 			this.shipSprite.setPosition(this.shipLeftBound, this.shipSprite.getY());
 		} else if(this.shipSprite.getX() > this.shipRightBound) {
 			this.shipSprite.setPosition(this.shipRightBound, this.shipSprite.getY());
+		}
+	}
+	
+	private void createGameLoop() {
+		this.registerUpdateHandler(new IUpdateHandler() {
+			@Override
+			public void reset() { }
+
+			@Override
+			public void onUpdate(final float pSecondsElapsed) {
+				// Move Ship
+				shipSprite.setPosition(shipSprite.getX()  + (xValue * speed * pSecondsElapsed), shipSprite.getY());
+				bindShipToCamera();
+				
+				// Move Player Rockets
+				// Loop from the last item the first so we can remove items along the way
+				for(int i = playerRockets.size() - 1; i >= 0 ; i--) {
+					tempRocket = playerRockets.get(i);
+					tempRocket.setPosition(tempRocket.getX(), tempRocket.getY() - (playerRocketSpeed * pSecondsElapsed));
+					if(!getResourceManager().getEngine().getCamera().isRectangularShapeVisible(tempRocket)) {
+						detachChild(tempRocket);
+						getResourceManager().recyclePlayerRocket(playerRockets.remove(i));
+					}
+				}
+				
+				// Move Enemies
+				
+				
+				// Check for Rocket Collisions
+			}
+		});
+	}
+	
+	private void firePlayerRocket(float xPos, float yPos) {
+		//if(this.getResourceManager().getAvailablePlayerRockets() > 0) {
+		this.tempRocket = this.getResourceManager().getPlayerRocket();
+		if(this.tempRocket != null) {
+			this.tempRocket.setPosition(xPos, yPos);
+			this.playerRockets.add(this.tempRocket);
+			this.attachChild(tempRocket);
+			this.tempRocket.setVisible(true);
+			Log.v("Jaalaga", "Fire player rocket success");
+		} else {
+			Log.w("Jaagla", "Fire player rocket, no rockets");
 		}
 	}
 	

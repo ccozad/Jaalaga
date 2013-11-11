@@ -192,7 +192,7 @@ public class JaalagaSceneManager extends Object {
 		// Set the camera for the managed layer so that it binds to the camera if the camera is moved/scaled/rotated.
 		pLayer.setCamera(this.engine.getCamera());
 		// Scale the layer according to screen size.
-		pLayer.setScale(this.resourceManager.getCameraScaleFactorX(), this.resourceManager.getCameraScaleFactorY());
+		//pLayer.setScale(this.resourceManager.getCameraScaleFactorX(), this.resourceManager.getCameraScaleFactorY());
 		// Let the layer know that it is being shown.
 		pLayer.onShowManagedLayer();
 		// Reflect that a layer is shown.
