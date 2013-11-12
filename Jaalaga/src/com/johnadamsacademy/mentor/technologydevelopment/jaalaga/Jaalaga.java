@@ -12,7 +12,6 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 //This software is licensed under The MIT License (MIT)
 //

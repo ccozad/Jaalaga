@@ -42,9 +42,9 @@ import android.util.Log;
 public abstract class ManagedGameScene extends ManagedScene {
 	private ButtonSprite fireButton;
 	private Sprite shipSprite;
-	private Sprite enemy1Sprite;
-	private Sprite enemy2Sprite;
-	private Sprite enemy3Sprite;
+	//private Sprite enemy1Sprite;
+	//private Sprite enemy2Sprite;
+	//private Sprite enemy3Sprite;
 	private Sprite tempRocket;
 	AnalogOnScreenControl analogOnScreenControl;
 	private float xValue;
@@ -53,6 +53,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 	private float shipLeftBound;
 	private float shipRightBound;
 	private List<Sprite> playerRockets;
+	private List<Sprite> enemies;
 	
 	public ManagedGameScene(JaalagaResourceManager resourceManager, JaalagaSceneManager sceneManager) {
 		// Let the Scene Manager know that we want to show a Loading Scene for at least 2 seconds.
@@ -68,11 +69,13 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);
-		//TODO What speed gives good game play?
+		//TODO What ship speed gives good game play?
 		this.speed = 200;
+		//TODO What rocket speed gives good game play?
 		this.playerRocketSpeed = 200;
 		this.xValue = 0;
 		this.playerRockets = new ArrayList<Sprite>();
+		this.enemies = new ArrayList<Sprite>();
 	}
 	
 	// These objects will make up our loading scene.
@@ -189,35 +192,35 @@ public abstract class ManagedGameScene extends ManagedScene {
 	}
 	
 	private void createEnemies() {
-		this.enemy1Sprite = new Sprite(
+		this.enemies.add(new Sprite(
 				0,
 				0,
 				this.getResourceManager().getEnemy1(),
-				this.getResourceManager().getEngine().getVertexBufferObjectManager());
-		this.enemy1Sprite.setPosition(
-				this.getResourceManager().getCameraWidth() * 0.25f - this.enemy1Sprite.getWidth()/2.0f, 
-				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy1Sprite.getWidth()/2.0f);
-		this.attachChild(this.enemy1Sprite);
+				this.getResourceManager().getEngine().getVertexBufferObjectManager()));
+		this.enemies.get(0).setPosition(
+				this.getResourceManager().getCameraWidth() * 0.25f - this.enemies.get(0).getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - this.enemies.get(0).getWidth()/2.0f);
+		this.attachChild(this.enemies.get(0));
 		
-		this.enemy2Sprite = new Sprite(
+		this.enemies.add(new Sprite(
 				0,
 				0,
 				this.getResourceManager().getEnemy2(),
-				this.getResourceManager().getEngine().getVertexBufferObjectManager());
-		this.enemy2Sprite.setPosition(
-				this.getResourceManager().getCameraWidth() * 0.50f - this.enemy2Sprite.getWidth()/2.0f, 
-				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy2Sprite.getWidth()/2.0f);
-		this.attachChild(this.enemy2Sprite);
+				this.getResourceManager().getEngine().getVertexBufferObjectManager()));
+		this.enemies.get(1).setPosition(
+				this.getResourceManager().getCameraWidth() * 0.50f - this.enemies.get(1).getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - this.enemies.get(1).getWidth()/2.0f);
+		this.attachChild(this.enemies.get(1));
 		
-		this.enemy3Sprite = new Sprite(
+		this.enemies.add(new Sprite(
 				0,
 				0,
 				this.getResourceManager().getEnemy3(),
-				this.getResourceManager().getEngine().getVertexBufferObjectManager());
-		this.enemy3Sprite.setPosition(
-				this.getResourceManager().getCameraWidth() * 0.75f - this.enemy3Sprite.getWidth()/2.0f, 
-				this.getResourceManager().getCameraHeight() * 0.20f - - this.enemy3Sprite.getWidth()/2.0f);
-		this.attachChild(this.enemy3Sprite);
+				this.getResourceManager().getEngine().getVertexBufferObjectManager()));
+		this.enemies.get(2).setPosition(
+				this.getResourceManager().getCameraWidth() * 0.75f - this.enemies.get(2).getWidth()/2.0f, 
+				this.getResourceManager().getCameraHeight() * 0.20f - this.enemies.get(2).getWidth()/2.0f);
+		this.attachChild(this.enemies.get(2));
 	}
 	
 	private void bindShipToCamera() {
@@ -247,16 +250,16 @@ public abstract class ManagedGameScene extends ManagedScene {
 				for(int i = playerRockets.size() - 1; i >= 0 ; i--) {
 					tempRocket = playerRockets.get(i);
 					tempRocket.setPosition(tempRocket.getX(), tempRocket.getY() - (playerRocketSpeed * pSecondsElapsed));
-					if(!getResourceManager().getEngine().getCamera().isRectangularShapeVisible(tempRocket)) {
+					if(getResourceManager().getEngine().getCamera().isRectangularShapeVisible(tempRocket)) {
+						// TODO Check if the rocket collides with any of the enemy ship
+						// TODO Remove the missile and ship from the screen upon collision
+					} else {
 						detachChild(tempRocket);
 						getResourceManager().recyclePlayerRocket(playerRockets.remove(i));
 					}
 				}
 				
-				// Move Enemies
-				
-				
-				// Check for Rocket Collisions
+				// Move Enemies (Enabled in future lab)
 			}
 		});
 	}

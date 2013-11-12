@@ -21,7 +21,6 @@ import org.andengine.util.color.Color;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.widget.Toast;
 
 // This software is licensed under The MIT License (MIT)
 //
@@ -220,7 +219,7 @@ public class JaalagaResourceManager extends Object {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
 
 		// Investigate proper texture packing/loading later
-		// TODO Can you change how the ship looks?
+		// TODO Change the game sprites to something more interesting
 		if(this.shipTextureRegion == null) {
 			BuildableBitmapTextureAtlas texture = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 80, 80);
 			this.shipTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "ship.png");
@@ -348,6 +347,7 @@ public class JaalagaResourceManager extends Object {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
 		
 		// logo texture:
+		//TODO Change the logo sprite to something more interesting
 		if(this.logoTextureRegion==null) {
 			BuildableBitmapTextureAtlas texture = new BuildableBitmapTextureAtlas(engine.getTextureManager(), 256, 256);
 			this.logoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(texture, context, "logo.png");
