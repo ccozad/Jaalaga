@@ -42,9 +42,6 @@ import android.util.Log;
 public abstract class ManagedGameScene extends ManagedScene {
 	private ButtonSprite fireButton;
 	private Sprite shipSprite;
-	//private Sprite enemy1Sprite;
-	//private Sprite enemy2Sprite;
-	//private Sprite enemy3Sprite;
 	private Sprite tempRocket;
 	AnalogOnScreenControl analogOnScreenControl;
 	private float xValue;
@@ -69,9 +66,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 		this.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);
-		//TODO What ship speed gives good game play?
 		this.speed = 200;
-		//TODO What rocket speed gives good game play?
 		this.playerRocketSpeed = 200;
 		this.xValue = 0;
 		this.playerRockets = new ArrayList<Sprite>();
@@ -251,8 +246,15 @@ public abstract class ManagedGameScene extends ManagedScene {
 					tempRocket = playerRockets.get(i);
 					tempRocket.setPosition(tempRocket.getX(), tempRocket.getY() - (playerRocketSpeed * pSecondsElapsed));
 					if(getResourceManager().getEngine().getCamera().isRectangularShapeVisible(tempRocket)) {
-						// TODO Check if the rocket collides with any of the enemy ship
-						// TODO Remove the missile and ship from the screen upon collision
+						for(int j = enemies.size() - 1; j >= 0; j--) {
+							if(tempRocket.collidesWith(enemies.get(j))) {
+								detachChild(tempRocket);
+								getResourceManager().recyclePlayerRocket(playerRockets.remove(i));
+								enemies.get(j).setIgnoreUpdate(true);
+								enemies.get(j).setVisible(false);
+								enemies.remove(j);
+							}
+						}
 					} else {
 						detachChild(tempRocket);
 						getResourceManager().recyclePlayerRocket(playerRockets.remove(i));
