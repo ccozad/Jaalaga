@@ -248,6 +248,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 					if(getResourceManager().getEngine().getCamera().isRectangularShapeVisible(tempRocket)) {
 						for(int j = enemies.size() - 1; j >= 0; j--) {
 							if(tempRocket.collidesWith(enemies.get(j))) {
+								getResourceManager().getEnemyExplosionSound().play();
 								detachChild(tempRocket);
 								getResourceManager().recyclePlayerRocket(playerRockets.remove(i));
 								enemies.get(j).setIgnoreUpdate(true);
@@ -274,6 +275,7 @@ public abstract class ManagedGameScene extends ManagedScene {
 			this.playerRockets.add(this.tempRocket);
 			this.attachChild(tempRocket);
 			this.tempRocket.setVisible(true);
+			this.getResourceManager().getPlayerFireSound().play();
 			Log.v("Jaalaga", "Fire player rocket success");
 		} else {
 			Log.w("Jaagla", "Fire player rocket, no rockets");

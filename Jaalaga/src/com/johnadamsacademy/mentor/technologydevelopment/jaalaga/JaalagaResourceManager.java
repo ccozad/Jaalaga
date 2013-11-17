@@ -70,6 +70,8 @@ public class JaalagaResourceManager extends Object {
 	private ITextureRegion onScreenControlKnobTextureRegion;
 	private ITextureRegion playerRocketTextureRegion;
 	private Sound clickSound;
+	private Sound playerFireSound;
+	private Sound enemyExplosionSound;
 	private Font fontDefault32Bold;
 	private Font fontDefault72Bold;
 	private RocketPool playerRocketPool;
@@ -102,6 +104,14 @@ public class JaalagaResourceManager extends Object {
 	
 	public Sound getClickSound() {
 		return this.clickSound;
+	}
+	
+	public Sound getEnemyExplosionSound() {
+		return this.enemyExplosionSound;
+	}
+	
+	public Sound getPlayerFireSound() {
+		return this.playerFireSound;
 	}
 	
 	public ITextureRegion getLogo() {
@@ -178,36 +188,38 @@ public class JaalagaResourceManager extends Object {
 	public void loadGameResources() {
 		this.loadGameTextures();
 		this.loadSharedResources();
+		this.loadGameSounds();
 	}
 	
 	// Loads all menu resources
 	public void loadMenuResources() {
 		this.loadMenuTextures();
 		this.loadSharedResources();
+		this.loadMenuSounds();
 	}
 	
 	// Unloads all game resources.
 	public void unloadGameResources() {
 		this.unloadGameTextures();
 		this.unloadRocketPools();
+		this.unloadGameSounds();
 	}
 
 	// Unloads all menu resources
 	public void unloadMenuResources() {
 		this.unloadMenuTextures();
+		this.unloadMenuSounds();
 	}
 	
 	// Unloads all shared resources
 	public  void unloadSharedResources() {
 		this.unloadSharedTextures();
-		this.unloadSounds();
 		this.unloadFonts();
 	}
 	
 	// Loads resources used by both the game scenes and menu scenes
 	private void loadSharedResources(){
 		this.loadSharedTextures();
-		this.loadSounds();
 		this.loadFonts();
 	}
 	
@@ -409,21 +421,44 @@ public class JaalagaResourceManager extends Object {
 		}
 	}
 	
-	private void loadSounds(){
+	private void loadMenuSounds(){
 		SoundFactory.setAssetBasePath("sounds/");
-		if(clickSound==null) {
+		if(this.clickSound == null) {
 			try {
 				// Create the clickSound object via the SoundFactory class
 				clickSound	= SoundFactory.createSoundFromAsset(engine.getSoundManager(), context, "click.mp3");
-				Log.v("Jaalaga", "Click sound loaded");
+				Log.v("Jaalaga", "Click sound loaded"); 
 			} catch (final IOException e) {
 				Log.e("Jaalaga","Click sound load Exception:" + e.getMessage());
 			}
 		}
+		
+
+	}
+	
+	private void loadGameSounds() {
+		SoundFactory.setAssetBasePath("sounds/");
+		if(this.playerFireSound == null) {
+			try {
+				this.playerFireSound = SoundFactory.createSoundFromAsset(engine.getSoundManager(), context, "playerFire.mp3");
+				Log.v("Jaalaga", "Player Fire sound loaded"); 
+			} catch (final IOException e) {
+				Log.e("Jaalaga","Player Fire sound load Exception:" + e.getMessage());
+			}
+		}
+		
+		if(this.enemyExplosionSound == null) {
+			try {
+				this.enemyExplosionSound = SoundFactory.createSoundFromAsset(engine.getSoundManager(), context, "enemyExplosion.mp3");
+				Log.v("Jaalaga", "Enemy Explosion sound loaded"); 
+			} catch (final IOException e) {
+				Log.e("Jaalaga","Enemy Explosion sound load Exception:" + e.getMessage());
+			}
+		}
 	}
 
-	private void unloadSounds(){
-		if(clickSound!=null)
+	private void unloadMenuSounds(){
+		if(clickSound !=null) {
 			if(clickSound.isLoaded()) {
 				// Unload the clickSound object. Make sure to stop it first.
 				clickSound.stop();
@@ -431,6 +466,29 @@ public class JaalagaResourceManager extends Object {
 				clickSound = null;
 				Log.v("Jaalaga", "Click sound unloaded");
 			}
+		}
+	}
+	
+	private void unloadGameSounds() {
+		if(this.playerFireSound != null) {
+			if(this.playerFireSound.isLoaded()) {
+				// Unload the clickSound object. Make sure to stop it first.
+				this.playerFireSound.stop();
+				engine.getSoundManager().remove(this.playerFireSound);
+				this.playerFireSound = null;
+				Log.v("Jaalaga", "Player Fire sound unloaded");
+			}
+		}
+		
+		if(this.enemyExplosionSound != null) {
+			if(this.enemyExplosionSound.isLoaded()) {
+				// Unload the clickSound object. Make sure to stop it first.
+				this.enemyExplosionSound.stop();
+				engine.getSoundManager().remove(this.enemyExplosionSound);
+				this.enemyExplosionSound = null;
+				Log.v("Jaalaga", "Enemy Explosion sound unloaded");
+			}
+		}
 	}
 
 	private void loadFonts(){
