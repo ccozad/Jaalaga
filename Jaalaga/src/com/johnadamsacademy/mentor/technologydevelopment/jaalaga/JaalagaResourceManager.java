@@ -72,6 +72,7 @@ public class JaalagaResourceManager extends Object {
 	private Sound clickSound;
 	private Sound playerFireSound;
 	private Sound enemyExplosionSound;
+	private Font fontDefault14;
 	private Font fontDefault32Bold;
 	private Font fontDefault72Bold;
 	private RocketPool playerRocketPool;
@@ -132,6 +133,10 @@ public class JaalagaResourceManager extends Object {
 	
 	public Engine getEngine() {
 		return this.engine;
+	}
+	
+	public Font getSmallFont() {
+		return this.fontDefault14;
 	}
 	
 	public Font getLargeFont() {
@@ -493,28 +498,64 @@ public class JaalagaResourceManager extends Object {
 
 	private void loadFonts(){
 		// Create the Font objects via FontFactory class
-		if(fontDefault32Bold==null) {
-			fontDefault32Bold = FontFactory.create(engine.getFontManager(), engine.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  32f, true, Color.WHITE_ARGB_PACKED_INT);
-			fontDefault32Bold.load();
+		if(this.fontDefault14 == null) {
+			this.fontDefault14 = FontFactory.create(this.engine.getFontManager(), 
+					this.engine.getTextureManager(), 
+					256, 
+					256, 
+					Typeface.create(Typeface.DEFAULT, Typeface.NORMAL),  
+					14f, 
+					true, 
+					Color.WHITE_ARGB_PACKED_INT);
+			this.fontDefault14.load();
+			Log.v("Jaalaga", "Default 14 font loaded");
+			
+		}
+		
+		if(this.fontDefault32Bold == null) {
+			this.fontDefault32Bold = FontFactory.create(this.engine.getFontManager(), 
+					this.engine.getTextureManager(), 
+					256, 
+					256, 
+					Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  
+					32f, 
+					true, 
+					Color.WHITE_ARGB_PACKED_INT);
+			this.fontDefault32Bold.load();
 			Log.v("Jaalaga", "Default 32 Bold font loaded");
 		}
-		if(fontDefault72Bold==null) {
-			fontDefault72Bold = FontFactory.create(engine.getFontManager(), engine.getTextureManager(), 512, 512, Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  72f, true, Color.WHITE_ARGB_PACKED_INT);
-			fontDefault72Bold.load();
+		
+		if(this.fontDefault72Bold == null) {
+			this.fontDefault72Bold = FontFactory.create(this.engine.getFontManager(), 
+					this.engine.getTextureManager(), 
+					512, 
+					512, 
+					Typeface.create(Typeface.DEFAULT, Typeface.BOLD),  
+					72f, 
+					true, 
+					Color.WHITE_ARGB_PACKED_INT);
+			this.fontDefault72Bold.load();
 			Log.v("Jaalaga", "Default 72 Bold font loaded");
 		}
 	}
 	
 	private void unloadFonts(){
 		// Unload the fonts
-		if(fontDefault32Bold!=null) {
-			fontDefault32Bold.unload();
-			fontDefault32Bold = null;
+		if(this.fontDefault14 != null) {
+			this.fontDefault14.unload();
+			this.fontDefault14 = null;
+			Log.v("Jaalaga", "Default 14 font loaded");
+		}
+		
+		if(this.fontDefault32Bold != null) {
+			this.fontDefault32Bold.unload();
+			this.fontDefault32Bold = null;
 			Log.v("Jaalaga", "Default 32 Bold font loaded");
 		}
-		if(fontDefault72Bold!=null) {
-			fontDefault72Bold.unload();
-			fontDefault72Bold = null;
+		
+		if(this.fontDefault72Bold != null) {
+			this.fontDefault72Bold.unload();
+			this.fontDefault72Bold = null;
 			Log.v("Jaalaga", "Default 72 Bold font loaded");
 		}
 	}

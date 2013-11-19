@@ -98,7 +98,7 @@ public class MainMenu extends ManagedMenuScene {
 			@Override
 			public void onClick(ButtonSprite pButtonSprite, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				// Create a new GameLevel and show it using the SceneManager. And play a click.
-				getSceneManager().showScene(new GameLevel(getResourceManager(), getSceneManager()));
+				getSceneManager().showScene(new JaalagaGameLevel(getResourceManager(), getSceneManager()));
 				getResourceManager().getClickSound().play();
 			}});
 		this.registerTouchArea(this.playButton);
@@ -178,6 +178,7 @@ public class MainMenu extends ManagedMenuScene {
 			@Override
 			public void onClick(ButtonSprite pButtonSprite, float pTouchAreaLocalX, float pTouchAreaLocalY) {;
 				getResourceManager().getClickSound().play();
+				getSceneManager().showCredits();
 			}});
 		this.registerTouchArea(this.creditsButton);
 	}

@@ -22,12 +22,12 @@ package com.johnadamsacademy.mentor.technologydevelopment.jaalaga;
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-public class GameLevel extends ManagedGameScene {
-	public GameLevel(JaalagaResourceManager resourceManager, JaalagaSceneManager sceneManager) {
+public class JaalagaGameLevel extends ManagedGameScene {
+	public JaalagaGameLevel(JaalagaResourceManager resourceManager, JaalagaSceneManager sceneManager) {
 		super(resourceManager, sceneManager);
 	}
 
-	public GameLevel(
+	public JaalagaGameLevel(
 			JaalagaResourceManager resourceManager,
 			JaalagaSceneManager sceneManager,
 			final float pLoadingScreenMinimumSecondsShown) {

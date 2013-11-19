@@ -48,6 +48,7 @@ public class JaalagaSceneManager extends Object {
 	private Scene mPlaceholderModalScene;
 	private JaalagaResourceManager resourceManager;
 	private MainMenu mainMenu;
+	private JaalagaCredits credits;
 	
 	// ====== Constructors ======
 	public JaalagaSceneManager(JaalagaResourceManager resourceManager) {
@@ -58,6 +59,7 @@ public class JaalagaSceneManager extends Object {
 		this.mLoadingScreenHandlerRegistered = false;
 		this.mCameraHadHud = false;
 		this.mainMenu = new MainMenu(this.resourceManager, this);
+		this.credits = new JaalagaCredits(this.resourceManager, this);
 		
 		this.loadingScreenHandler = new IUpdateHandler() {
 			@Override
@@ -162,9 +164,22 @@ public class JaalagaSceneManager extends Object {
 	public void showMainMenu() {
 		showScene(this.mainMenu);
 	}
+	
+	public void showCredits() {
+		boolean suspendSceneDrawing = false;
+		boolean suspendSceneUpdates = false;
+		boolean suspendSceneTouchEvents = true;
+		this.showLayer(credits, 
+				suspendSceneDrawing, 
+				suspendSceneUpdates,
+				suspendSceneTouchEvents);
+	}
 
 	// Shows a layer by placing it as a child to the Camera's HUD.
-	public void showLayer(final ManagedLayer pLayer, final boolean pSuspendSceneDrawing, final boolean pSuspendSceneUpdates, final boolean pSuspendSceneTouchEvents) {
+	public void showLayer(final ManagedLayer pLayer, 
+			final boolean pSuspendSceneDrawing, 
+			final boolean pSuspendSceneUpdates, 
+			final boolean pSuspendSceneTouchEvents) {
 		// If the camera already has a HUD, we will use it.
 		if(this.engine.getCamera().hasHUD()){
 			mCameraHadHud = true;
